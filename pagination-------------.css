@@ -1,0 +1,62 @@
+/* pagination */
+.paginator{
+	overflow: hidden;
+	margin: 10px;
+}
+
+.paginator li{
+
+}
+.paginator a:link, .paginator a:visited{
+	background: url(btn_page.png) 0 0 no-repeat;
+	color: #383939;
+	display: block;
+	float: left;
+	font-weight: bold;
+	height: 20px;
+	line-height: 20px;
+	margin: 0 2px 0px 2px;
+	text-align: center;
+	text-decoration: none;
+	width: 20px;
+	 -moz-border-radius:5px; -webkit-border-radius: 5px; -khtml-border-radius: 5px; border-radius: 5px; behavior:url("border-radius.htc"); background:#f5f5f5; border:1px solid #cacaca; padding:5px; 	
+}
+.paginator a:hover,
+.paginator a.focus{
+	background: url(btn_page.png) 0 -20px no-repeat;
+	color: #9b2c02;
+	 -moz-border-radius:5px; -webkit-border-radius: 5px; -khtml-border-radius: 5px; border-radius: 5px; behavior:url("border-radius.htc"); background:#f5f5f5; border:1px solid #e21e22; padding:5px; }
+
+
+
+
+
+.paginator1{
+	overflow: hidden;
+	margin-top: 0px;
+	float:right;
+
+}
+
+.paginator1 li{
+float:right;
+}
+.paginator1 a:link, .paginator1 a:visited{
+	background: url(btn_page.png) 0 0 no-repeat;
+	color: #383939;
+	display: block;
+	float: left;
+	font-weight: bold;
+	height: 20px;
+	line-height: 20px;
+	margin: 0 ;
+	text-align: center;
+	text-decoration: none;
+	width: 20px;
+	
+}
+.paginator1 a:hover,
+.paginator1 a.focus{
+	background: url(btn_page.png) 0 -20px no-repeat;
+	color: #9b2c02;
+	}

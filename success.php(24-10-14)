@@ -1,0 +1,602 @@
+<?php
+ob_start();
+session_start();
+include('dbconfig.php');
+include('administrator/includes/dbconnection.php');
+include('model/user.class.php');
+$frntUserObj=new userClass();
+//$cartobj=new cartClass();
+//echo $_SESSION['frnt_mid'];
+?>
+<?php
+//print_r($_REQUEST);
+/*if($_REQUEST['tx_id']!="")
+{   */  
+$guestbill="select MAX(user_id) as id from tb_guestubillingaddress where cart_id='".$_SESSION['CART_TEMP_RANDOM']."'";
+$guest=$callConfig->getRow($guestbill);
+$guestbilladd="select * from tb_guestubillingaddress where user_id='".$guest->id."'";
+$guestbilling=$callConfig->getRow($guestbilladd);
+//print_r($guestbilling);
+
+
+$shipbill="select MAX(user_id) as id from tb_guesthppingaddress where cart_id='".$_SESSION['CART_TEMP_RANDOM']."'";
+$ship=$callConfig->getRow($shipbill);
+$guestshipadd="select * from tb_guesthppingaddress where user_id='".$ship->id."'";
+$guestshipping=$callConfig->getRow($guestshipadd);
+
+//echo "sarat"; exit;
+
+	if($_REQUEST['tx_id']!="")
+{
+	$txn_id= $_REQUEST['tx_id'];
+}
+else if($_REQUEST['txn_id']!="")
+{
+	$txn_id= $_REQUEST['txn_id'];
+}
+	$var_temp_session= $_SESSION['CART_TEMP_RANDOM'];
+	$curr_purchase_date=date("d/m/Y");
+	$_SESSION['ordno']=date('Ymdhis');
+	
+	   $sqluemail="select * from  tb_users_info   where user_id='".$_SESSION['frnt_mid']."'";
+           $rsemail=$callConfig->getRow($sqluemail);
+
+       //print_r($rsemail);exit;
+
+$sel_set="select * from tb_sitesettings";
+$rs_ship=$callConfig->getRow($sel_set);
+
+$gettmpcart="Select * from tb_cart where temprandid='".$var_temp_session."'";
+$gettmprowcartres=mysql_query($gettmpcart);
+$gettmpcart32="Select * from tb_cart  where temprandid='".$var_temp_session."'";
+ $gettmprowcartres32=$callConfig->getAllRows($gettmpcart32);
+ 
+ foreach($gettmprowcartres32 as $prd)
+        { 
+		       
+			$querytb_cart_value="select * from tb_store_value where spid='".stripslashes($prd->prod_id)."' and size='".stripslashes($prd->bottle_size)."'";   
+			
+			 $querytb_cart_value2=$callConfig->getRow($querytb_cart_value);
+             $quantities=$querytb_cart_value2->quantity-$prd->quantity;
+
+		 $sql_orders12="update tb_store_value set quantity='".$quantities."' where spid='".stripslashes($prd->prod_id)."' and size='".stripslashes($prd->bottle_size)."'";
+		
+			$sqlordins_res2=mysql_query($sql_orders12);
+			
+            //$ship=$rs_ship->shippingamount*$prd->quantity;
+			}
+ 
+//echo $id= $_SESSION['frontuser_id']; 
+
+
+/*
+ $sqlord="insert into tb_orders set txn_id='".$txn_id."', ship_price='".$rs_ship->shippingamount."',order_no='".$_SESSION['ordno']."',customer_id='".$_SESSION['frnt_mid']."',total_price='".$_SESSION['amount']."',b_f_name='".$rsemail->b_firstname."', b_last_name='".$rsemail->b_lastname."',b_country='".$rsemail->b_country."',b_state='".$rsemail->b_state."', b_company='".$rsemail->b_company."', b_address='".$rsemail->b_address."',b_city='".$rsemail->b_city."',b_zip_code='".$rsemail->b_zipcode."', b_phone='".$rsemail->b_phoneno."',b_fax='".$rsemail->b_fax."',sh_f_name='".$rsemail->s_firstname."', sh_last_name='".$rsemail->s_lastname."',sh_country='".$rsemail->s_country."',sh_state='".$rsemail->s_state."',sh_company='".$rsemail->s_company."', sh_address='".$rsemail->s_address."',sh_city='".$rsemail->s_city."',sh_zip_code='".$rsemail->s_zipcode."', sh_phone='".$rsemail->s_phoneno."',sh_fax='".$rsemail->s_fax."',ord_status='New Order'";
+*/
+$sqlord="insert into tb_orders set txn_id='".$txn_id."', ship_price='".$_SESSION['shippingamount']."',order_no='".$_SESSION['ordno']."',customer_id='".$_SESSION['userid']."',total_price='".$_SESSION['amount']."',b_f_name='".$guestbilling->first_name."', b_last_name='".$guestbilling->last_name."',b_country='".$guestbilling->country."',b_state='".$guestbilling->state."', b_company='".$guestbilling->companyname."', b_address='".$guestbilling->address."',b_city='".$guestbilling->city."',b_zip_code='".$guestbilling->zip_code."', b_phone='".$guestbilling->phone."',  b_email='".$guestbilling->user_email."', b_fax='".$guestbilling->fax."',sh_f_name='".$guestshipping->first_name."', sh_last_name='".$guestshipping->last_name."',sh_country='".$guestshipping->country."',sh_state='".$guestshipping->state."',sh_company='".$guestshipping->companyname."', sh_address='".$guestshipping->address."',sh_city='".$guestshipping->city."',sh_zip_code='".$guestshipping->zip_code."', sh_phone='".$guestshipping->phone."',sh_fax='".$guestshipping->fax."',ord_status='New Order'";
+
+
+mysql_query($sqlord);
+
+$o_id=mysql_insert_id();
+
+
+			
+	$to='pappuchandrasekhar25@gmail.com';
+	$subject = 'Order Confirmation';
+	 $message="<table cellspacing='0' cellpadding='5'  align='center' width='100%' border='0' style='border:1px solid #CCCCCC; border-collapse:collapse; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:11px;'>
+  <tr style='background-color:#CCCCCC'>
+    <td  colspan='2' align='left' valign='top'><img src='".SITEURL."/images/sitelogo_04.png' ></td>
+  </tr>
+  <tr>
+    <td  colspan='2' align='left' valign='top'>Dear<strong> ".$_SESSION['frnt_usname'].",</strong></td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'><strong>Your Confirmed Order Details are Placed Below</strong> </td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'><strong>Order date:</strong> ".$curr_purchase_date." (DD/MM/YYYY) </td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'><strong>Transaction ID:</strong> ".$_REQUEST['tx_id']." </td>
+  </tr>
+  <tr>
+
+    <td valign='top' colspan='2' align='left'><table width='100%' border='1' cellspacing='0' cellpadding='0' style='border:1px solid #eeeeee; border-collapse:collapse;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:11px;'>
+
+        <tr>
+
+          <td width='15%' height='25' align='left' valign='middle' bgcolor='#eeeeee'><strong>Billing Address:</strong></td>
+
+          <td width='32%' height='25' align='left' valign='middle' bgcolor='#eeeeee'>&nbsp;</td>
+
+          <td width='15%' height='25' align='left' valign='middle' bgcolor='#eeeeee'><strong>Shipping Address:</strong></td>
+
+          <td width='38%' height='25' align='left' valign='middle' bgcolor='#eeeeee'>&nbsp;</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Address:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_address."</td>
+
+          <td height='23' align='left' valign='middle'><strong>Address1:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_address."</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>City:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_city."</td>
+
+          <td height='23' align='left' valign='middle'><strong>City:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_city."</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>State:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->b_state."
+
+		 </td>
+
+          <td height='23' align='left' valign='middle'><strong>State:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->s_state."
+
+		  </td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Country:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->b_country."
+
+		  </td>
+
+          <td height='23' align='left' valign='middle'><strong>Country:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->s_country."
+
+		  </td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Zip Code:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_zipcode."</td>
+
+          <td height='23' align='left' valign='middle'><strong>Zip Code:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_zipcode."</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Phone:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_phoneno."</td>
+
+          <td height='23' align='left' valign='middle'><strong>Phone:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_phoneno."</td>
+
+        </tr>
+		
+	
+
+      </table></td>
+	  
+	  
+
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'>";
+	
+	 $msg="<table width='100%' border='1' cellspacing='0' cellpadding='3' style='border:1px solid #eeeeee; border-collapse:collapse;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:11px;'>
+        <tr>
+          <td width='60' align='left' valign='middle'><strong>Image </strong></td>
+          <td width='200' align='left' valign='middle'><strong>Product Name</strong></td>
+		  <td width='100' align='left' valign='middle'><strong>Product Type </strong></td>
+		   <td width='200' align='left' valign='middle'><strong>Size</strong></td>
+		  <td width='100' align='left' valign='middle'><strong>Color</strong></td>
+		   <td width='50' align='left' valign='middle'><strong>Quantity </strong></td>
+		  <td width='50' align='center' valign='middle'><strong>Price </strong></td>
+          <td width='50' align='center' valign='middle'><strong>Shipping</strong></td>
+		  <td width='50' align='center' valign='middle'><strong>Sub total</strong></td>
+         
+        </tr>";
+    
+   $gettmpcart1="Select * from tb_cart  where temprandid='".$var_temp_session."'";
+ $gettmprowcartres1=$callConfig->getAllRows($gettmpcart1);
+$ship_amount=0;
+	foreach($gettmprowcartres1 as $prd)
+        { 
+		
+		 $sql_orders1="insert into tb_orderdetails set order_id='".$o_id."',product_id='".$prd->prod_id."',prod_name='".$prd->prod_name."',prod_type='".stripslashes($prd->type)."',quantity='".$prd->quantity."',price='".$prd->indiv_price."',p_size='".$prd->bottle_size."',p_color='".$prd->prod_color."'";
+		
+		
+	
+		
+			$sqlordins_res=mysql_query($sql_orders1);$o_id1=mysql_insert_id();
+			
+			
+			
+			
+			  $sql_ordersnew="update tb_store_products set count_stack='1' where spid='$prd->prod_id' "; 
+			 $sqllat=mysql_query($sql_ordersnew);
+			
+			
+
+		if($prd->prod_type=='Packages')
+		{
+			$sel_pack="select * from tb_packagelist where p_id=".$prd->prod_id;
+			$rs_pack=$callConfig->getAllRows($sel_pack);
+			foreach($rs_pack as $pack)
+			{
+				 $sql_orders2="insert into tb_orderpackagelist set o_id='".$o_id1."',p_id='".$prd->prod_id."',p_order='".$pack->p_order."',p_product='".$pack->p_product."',p_prodprice='".$pack->p_prodprice."'";
+		
+					$sqlordins_res222=mysql_query($sql_orders2);
+			}
+		}
+		
+		
+		
+			//$ship=$rs_ship->shippingamount*$prd->quantity;
+			$ship=$rs_ship->shippingamount*$prd->quantity;
+						    $ship_amount=$ship_amount+$ship;
+		if($prd->p_img!='' && $prd->prod_type=='Packages')
+							{
+							  if(file_exists('uploads/packages/thumbs/'.$prd->p_img))
+							  {
+								$src=SITEURL.'/uploads/packages/thumbs/'.$prd->p_img;
+							  }
+							  else
+							    $src=SITEURL.'/images/no_img.jpg';
+							}
+							if($prd->p_img!='' && $prd->prod_type=='Products')
+							{
+							  if(file_exists('uploads/store/products/thumbs/'.$prd->p_img))
+							  {
+								$src=SITEURL.'/uploads/store/products/thumbs/'.$prd->p_img;
+							  }
+							  else
+							    $src=SITEURL.'/images/no_img.jpg';
+							}
+		$msg=$msg."
+		<tr><td><img src='".$src."' width='60' height='60' /></td>
+		<td>".stripslashes($prd->prod_name)."</td>
+		<td>".stripslashes($prd->prod_type)."</td>
+		<td>".stripslashes($prd->prod_size)."</td>";
+		if($prd->prod_color!=''){
+			$msg=$msg.'<td><div  style="text-align:center;cursor:pointer;padding:5px;width:16px;height:8px;background-color:'.$prd->prod_color.'"  >&nbsp;</div></td>';
+		
+		}
+		else
+		{
+		$msg=$msg."<td>&nbsp;</td>";	
+		}
+		$msg=$msg."<td>".stripslashes($prd->quantity)."</td>
+		<td align='right'>$".number_format($prd->indiv_price,2)."</td>
+		<td align='right'>$".number_format($ship,2)."</td>
+		<td align='right'>$".number_format($prd->total_price+$ship,2)."</td></tr>
+		
+		";
+		$g_total+=$prd->total_price;
+		
+		}
+          $msg=$msg."
+		  <tr>
+          <td  align='right' valign='middle' colspan='8'><strong>Shipping</strong>:</td><td align='right'>&nbsp;$".number_format($ship_amount,2)."</strong></td>
+        </tr>
+        <tr>
+          <td  align='right' valign='middle' colspan='8' ><strong>Sub Total:</td><td align='right'>&nbsp;$".number_format($g_total,2)."</strong></td>
+        </tr>
+		 <tr>
+          <td  align='right' valign='middle' colspan='8'>
+          <strong>Grand Total</strong>:</td><td align='right'>&nbsp;$".number_format($g_total+$ship_amount,2)."</strong></td>
+        </tr></table>
+        ";
+		
+         
+
+        $message=$message.$msg."
+      </td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'>&nbsp;</td>
+  </tr>
+  
+  
+  <tr>
+    <td valign='top' colspan='2' align='left'>Thank You,<br />
+      Support Team, <br>Nutrivapors</td>
+  </tr>
+</table>";
+echo $message; 
+
+
+$headers  = 'MIME-Version: 1.0' . "\r\n";
+$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+$headers .= 'From:'.$rs_ship->mail_fromname.'<'.$rs_ship->mail_frommail.'>'. "\r\n";
+
+mail($_SESSION['frnt_memail'],$subject, $message, $headers);
+
+
+
+$subject2 = 'Customer Order Information';
+$message2="<table cellspacing='0' cellpadding='5'  align='center' width='100%' border='0' style='border:1px solid #CCCCCC; border-collapse:collapse; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:11px;'>
+  <tr style='background-color:#CCCCCC'>
+    <td  colspan='2' align='left' valign='top'><img src='".SITEURL."/images/logo_06.png' ></td>
+  </tr>
+  <tr>
+    <td  colspan='2' align='left' valign='top'>Dear<strong> Administrator,</strong></td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'><strong>Confirmed Order Details are Placed Below</strong> </td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'><strong>Order date:</strong> ".$curr_purchase_date." (DD/MM/YYYY) </td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'><strong>Transaction ID:</strong> ".$_REQUEST['tx_id']." </td>
+  </tr>
+  <tr>
+
+    <td valign='top' colspan='2' align='left'><table width='100%' border='1' cellspacing='0' cellpadding='0' style='border:1px solid #eeeeee; border-collapse:collapse;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:11px;'>
+
+        <tr>
+
+          <td width='15%' height='25' align='left' valign='middle' bgcolor='#eeeeee'><strong>Billing Address:</strong></td>
+
+          <td width='32%' height='25' align='left' valign='middle' bgcolor='#eeeeee'>&nbsp;</td>
+
+          <td width='15%' height='25' align='left' valign='middle' bgcolor='#eeeeee'><strong>Shipping Address:</strong></td>
+
+          <td width='38%' height='25' align='left' valign='middle' bgcolor='#eeeeee'>&nbsp;</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Address:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_address."</td>
+
+          <td height='23' align='left' valign='middle'><strong>Address1:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_address."</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>City:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_city."</td>
+
+          <td height='23' align='left' valign='middle'><strong>City:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_city."</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>State:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->b_state."
+
+		 </td>
+
+          <td height='23' align='left' valign='middle'><strong>State:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->s_state."
+
+		  </td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Country:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->b_country."
+
+		  </td>
+
+          <td height='23' align='left' valign='middle'><strong>Country:</strong></td>
+
+          <td height='23' align='left' valign='middle'>
+
+		  ".$rsemail->s_country."
+
+		  </td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Zip Code:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_zipcode."</td>
+
+          <td height='23' align='left' valign='middle'><strong>Zip Code:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_zipcode."</td>
+
+        </tr>
+
+        <tr>
+
+          <td height='23' align='left' valign='middle'><strong>Phone:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->b_phoneno."</td>
+
+          <td height='23' align='left' valign='middle'><strong>Phone:</strong></td>
+
+          <td height='23' align='left' valign='middle'>".$rsemail->s_phoneno."</td>
+
+        </tr>
+
+      </table></td>
+
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'>";
+	
+	 $msg="<table width='100%' border='1' cellspacing='0' cellpadding='3' style='border:1px solid #eeeeee; border-collapse:collapse;font-family:Verdana, Arial, Helvetica, sans-serif; font-size:11px;'>
+        <tr>
+          <td width='60' align='left' valign='middle'><strong>Image </strong></td>
+          <td width='200' align='left' valign='middle'><strong>Product Name</strong></td>
+		  <td width='100' align='left' valign='middle'><strong>Product Type </strong></td>
+		   <td width='200' align='left' valign='middle'><strong>Size</strong></td>
+		  <td width='100' align='left' valign='middle'><strong>Color</strong></td>
+		   <td width='50' align='left' valign='middle'><strong>Quantity </strong></td>
+		  <td width='50' align='center' valign='middle'><strong>Price </strong></td>
+          <td width='50' align='center' valign='middle'><strong>Shipping</strong></td>
+		  <td width='50' align='center' valign='middle'><strong>Sub total</strong></td>
+         
+        </tr>";
+    
+   $gettmpcart1="Select * from tb_cart  where temprandid='".$var_temp_session."'";
+ $gettmprowcartres1=$callConfig->getAllRows($gettmpcart1);
+$ship_amount=0;
+	foreach($gettmprowcartres1 as $prd)
+        { 
+		
+		/*echo  $sql_orders1="insert into tb_orderdetails set order_id='".$o_id."',product_id='".$prd->prod_id."',prod_type='".stripslashes($prd->prod_type)."',quantity='".$prd->quantity."',price='".$prd->indiv_price."',p_size='".$prd->prod_size."',p_color='".$prd->prod_color."'";
+		
+			$sqlordins_res=mysql_query($sql_orders1);$o_id1=mysql_insert_id();
+
+		*/
+		
+		
+		
+			$ship=$rs_ship->shippingamount*$prd->quantity;
+						    $ship_amount=$ship_amount+$ship;
+		if($prd->p_img!='' && $prd->prod_type=='Packages')
+							{
+							  if(file_exists('uploads/packages/thumbs/'.$prd->p_img))
+							  {
+								$src=SITEURL.'/uploads/packages/thumbs/'.$prd->p_img;
+							  }
+							  else
+							    $src=SITEURL.'/images/no_img.jpg';
+							}
+							if($prd->p_img!='' && $prd->prod_type=='Products')
+							{
+							  if(file_exists('uploads/store/products/thumbs/'.$prd->p_img))
+							  {
+								$src=SITEURL.'/uploads/store/products/thumbs/'.$prd->p_img;
+							  }
+							  else
+							    $src=SITEURL.'/images/no_img.jpg';
+							}
+		$msg=$msg."
+		<tr><td><img src='".$src."' width='60' height='60' /></td>
+		<td>".stripslashes($prd->prod_name)."</td>
+		<td>".stripslashes($prd->prod_type)."</td>
+		<td>".stripslashes($prd->prod_size)."</td>";
+		if($prd->prod_color!=''){
+			$msg=$msg.'<td><div  style="text-align:center;cursor:pointer;padding:5px;width:16px;height:8px;background-color:'.$prd->prod_color.'"  >&nbsp;</div></td>';
+		
+		}
+		else
+		{
+		$msg=$msg."<td>&nbsp;</td>";	
+		}
+		$msg=$msg."<td>".stripslashes($prd->quantity)."</td>
+		<td align='right'>$".number_format($prd->indiv_price,2)."</td>
+		<td align='right'>$".number_format($ship,2)."</td>
+		<td align='right'>$".number_format($prd->total_price+$ship,2)."</td></tr>
+		
+		";
+		$g_total+=$prd->total_price;
+		
+		}
+          $msg=$msg."
+		  <tr>
+          <td  align='right' valign='middle' colspan='8'><strong>Shipping</strong>:</td><td align='right'>&nbsp;$".number_format($ship_amount,2)."</strong></td>
+        </tr>
+        <tr>
+          <td  align='right' valign='middle' colspan='8' ><strong>Sub Total:</td><td align='right'>&nbsp;$".number_format($g_total,2)."</strong></td>
+        </tr>
+		 <tr>
+          <td  align='right' valign='middle' colspan='8'>
+          <strong>Grand Total</strong>:</td><td align='right'>&nbsp;$".number_format($g_total+$ship_amount,2)."</strong></td>
+        </tr></table>
+        ";
+		
+         
+
+        $message=$message.$msg."
+      </td>
+  </tr>
+  <tr>
+    <td valign='top' colspan='2' align='left'>&nbsp;</td>
+  </tr>
+  
+  
+  <tr>
+    <td valign='top' colspan='2' align='left'>Thank You,<br />
+      Support Team, <br>Nutrivapors</td>
+  </tr>
+</table>";
+//echo $message2;exit;
+$headers2  = 'MIME-Version: 1.0' . "\r\n";
+$headers2 .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+$headers2 .= 'From:'.$rs_ship->mail_frommail. "\r\n";
+
+mail($rs_ship->mail_frommail, $subject2, $message2, $headers2);
+ $user_main_delet=$callConfig->selectQuery(TPREFIX.TBL_ORDERS,'*'," txn_id='".$_POST['tx_id']."'",'','','');
+$user_main_delet_res=$callConfig->getRow($user_main_delet); 
+  $sell_pro_det=$callConfig->selectQuery(tb_orderdetails,'*'," order_id=".$user_main_delet_res->oid."",'','','');
+$sell_pro_det_res=$callConfig->getRow($sell_pro_det);
+
+   $sell=$callConfig->selectQuery(TPREFIX.TBL_STOREPRODUCTS,'*'," spid=".$sell_pro_det_res->product_id."",'','','');
+ 
+  $sell_pro=$callConfig->getRow($sell);
+  
+  $avil=($sell_pro->aval_stock)-($sell_pro_det_res->quantity);
+   "UPDATE tb_store_products SET aval_stock=$avil where spid=".$sell_pro_det_res->product_id." "; 
+  $rrr=mysql_query("UPDATE tb_store_products SET aval_stock=$avil where spid=".$sell_pro_det_res->product_id." ");
+
+	
+$deltmpcart="delete  from tb_cart where temprandid='".$var_temp_session."'";
+$deltmprowcartres=mysql_query($deltmpcart);$_SESSION['total']='';$_SESSION['CART_TEMP_RANDOM']='';$_SESSION['ordno']='';
+header("location:thankyou.php");
+
+/*}
+else
+{
+//header("location:transactionfailed.php");
+exit;		
+}*/
+?>
