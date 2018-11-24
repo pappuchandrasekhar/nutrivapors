@@ -5,7 +5,7 @@
 include('dbconfig.php');
 
 include_once("includes/sessions.php");
-echo "hiisdfs";exit;
+echo "hii1";
 include('administrator/includes/dbconnection.php');
 include('administrator/model/sitesettings.class.php');
 include('model/banner.class.php');
@@ -13,7 +13,7 @@ include('model/cart.class.php');
 include('model/seo.class.php');
 
 $cartobj= new cartClass();
-$cartproducts=$cartobj->getindcart();
+$caroducts=$cartobj->getindcart();
  $sumofvalues=$cartobj->getindsumcartvalue();
 $sumtotal= $sumofvalues->total;
 $tot_cou = count($cartproducts);
