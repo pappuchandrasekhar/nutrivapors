@@ -1,13 +1,17 @@
 <?php 
 @ob_start();
 @session_start();
+
 include('dbconfig.php');
+
 include_once("includes/sessions.php");
+echo "hiisdfs";exit;
 include('administrator/includes/dbconnection.php');
 include('administrator/model/sitesettings.class.php');
 include('model/banner.class.php');
 include('model/cart.class.php');
 include('model/seo.class.php');
+
 $cartobj= new cartClass();
 $cartproducts=$cartobj->getindcart();
  $sumofvalues=$cartobj->getindsumcartvalue();
@@ -21,6 +25,7 @@ $sitesettObj= new sitesettingsClass();
 $sitesettings=$sitesettObj->getSitesettings();
 //print_r($sitesettings);
 $catlist=$bannerObj->gettoprated();
+
 ?>
 
 
@@ -242,7 +247,7 @@ size=document.getElementById('bottle_size').value;
           <div class="site_container topin">
                <!--left-->
                  <div class="leftmenu">
-                   <div class="topicon"><a href="#"><img src="<?=SITEURL?>/images/topiconleft_02.png" alt=""></a></div>
+                   <div class="topicon"><a href="#"><img src="<?php echo SITEURL;?>/images/topiconleft_02.png" alt=""></a></div>
                    <div class="tolmenu"><a href="#"><!--Hotline: 0123 456 789; skype: kalins.support-->sales@nutrivapors.com</a></div>
                    <div class="clear_fix"></div>
                  </div>

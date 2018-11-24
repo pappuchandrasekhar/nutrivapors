@@ -1,10 +1,12 @@
 <?php 
+//echo phpinfo();exit;
 class configClass
 {
 		var $hostname="";
 		var  $username="";
 		var $password="";
 		var  $dbname="";
+                
 		
 		function configClass()
 		{
@@ -41,20 +43,31 @@ class configClass
 		
 		function configConnection()
 		{
-			$con=mysql_connect($this->hostname,$this->username,$this->password);
-			$connection=mysql_select_db($this->dbname,$con);
-			if(!$connection) echo "fail".mysql_error();
+                    //echo $this->hostname;
+                    //echo $this->username;
+                    //echo $this->dbname;exit;
+                    $con = mysqli_connect("localhost","root","","nutrivapors");
+
+                    // Check connection
+                    /*if (mysqli_connect_errno())
+                      {
+                      echo "Failed to connect to MySQL: " . mysqli_connect_error();exit;
+                      }
+                    
+			$con=mysqli_connect($this->hostname,$this->username,$this->password);
+			$connection=mysqli_select_db($this->dbname,$con);
+			if(!$connection) echo "fail".mysqli_connect_errno();*/
 		}
 		function executeQuery($query){
-			$result = mysql_query($query);
-			$insert_id = mysql_insert_id();
-			$update_id = mysql_affected_rows();
+			$result = mysqli_query($con,$query);
+			$insert_id = mysqli_insert_id();
+			$update_id = mysqli_affected_rows();
 			$queryresult = array(LASTID=>$insert_id, Result=>$result, UpdatedRes=>$update_id);
 			//print_r($queryresult); exit;
 			return $queryresult;
 		}
 		function executeQueryString($query){
-			$result = mysql_query($query);
+			$result = mysqli_query($query);
 		}
 		function insertRecord($tablename,$fieldnames)
 		{
@@ -682,24 +695,25 @@ function createthumbImages($srcpath,$dir,$width,$height)
 
 
 		/*function queryUid($query) {
-			$result = @mysql_query($query);
-			$insert_id = mysql_insert_id();
-			$update_id = mysql_affected_rows();
+			$result = @mysqli_query($query);
+			$insert_id = mysqli_insert_id();
+			$update_id = mysqli_affected_rows();
 			$queryresult = array(ID=>$insert_id, Result=>$result, UpdateRes=>$update_id);
 			return $queryresult;		
 		}*/
 		function getRow($query)
 		{
-			$res=mysql_query($query); 
-			$values=@mysql_fetch_object($res);  
+                       $con = mysqli_connect("localhost","root","","nutrivapors");
+			$res=mysqli_query($con,$query); 
+			$values=@mysqli_fetch_object($res);  
 			return $values;
 		}
 		
 		function getAllRows($query)
 		{
 			$values=array();
-			$res=mysql_query($query); 
-			while($rows=@mysql_fetch_object($res)) {
+			$res=mysqli_query($query); 
+			while($rows=@mysqli_fetch_object($res)) {
 				$values[]=$rows;
 			}
 			return $values;
@@ -707,8 +721,8 @@ function createthumbImages($srcpath,$dir,$width,$height)
 		
 		function getCount($query)
 		{
-			$res=@mysql_query($query); 
-			$cnt=@mysql_num_rows($res);  
+			$res=@mysqli_query($query); 
+			$cnt=@mysqli_num_rows($res);  
 			return $cnt;
 		}
 		

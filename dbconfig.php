@@ -1,11 +1,8 @@
 <?php 
 ini_set("display_errors",0);
 @define(HOSTNAME,"localhost");
-
 @define(USERNAME,"root");
-
 @define(PASSWORD,"");
-
 @define(DBNAME, "nutrivapors");
 
 

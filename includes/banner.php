@@ -1,5 +1,7 @@
 <?php 
+echo "hello";exit;
 $banner=$bannerObj->getAllBannersList('','','','');
+print_r($banner);
 ?>
 <link rel="stylesheet" type="text/css" href="<?=SITEURL?>/js/silde/slideshow.css" media="screen" />
 <script type="text/javascript" src="<?=SITEURL?>/js/silde/jquery-1.7.1.min.js"></script>
